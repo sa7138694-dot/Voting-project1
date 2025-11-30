@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Voting</title>
+
+<style>
+  body { font-family: sans-serif; text-align: center; padding: 20px; background: #f7f7f7; }
+  .box { margin: 20px auto; padding: 15px; border: 1px solid #ccc; border-radius: 15px; width: 250px; background: #fff; }
+  img { width: 220px; border-radius: 12px; }
+  button { padding: 10px 20px; font-size: 18px; margin-top: 10px; cursor: pointer; border: none; border-radius: 8px; }
+  #voteA { background-color: #4CAF50; color: white; }
+  #voteB { background-color: #2196F3; color: white; }
+  h2 { margin-top: 5px; }
+</style>
+
+</head>
+<body>
+
+<h1>Live Voting System</h1>
+
+<div class="box">
+  <img src="karachi.jpg" alt="Karachi Shahbaz">
+  <h2 id="countA">0</h2>
+  <button id="voteA">Vote Karachi Shahbaz</button>
+</div>
+
+<div class="box">
+  <img src="kpk.jpg" alt="KPK Zaid">
+  <h2 id="countB">0</h2>
+  <button id="voteB">Vote KPK Zaid</button>
+</div>
+
+<script type="module">
+
+  // Firebase CDN
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDtPIw4C8k3pJn0rELskQJ4JJZs-CE6UmQ",
+    authDomain: "vote-counting-3c1e3.firebaseapp.com",
+    projectId: "vote-counting-3c1e3",
+    storageBucket: "vote-counting-3c1e3.firebasestorage.app",
+    messagingSenderId: "594542554494",
+    appId: "1:594542554494:web:4fff35fcafe33f95c9172f",
+    measurementId: "G-FYQV9MFG9H",
+    databaseURL: "https://vote-counting-3c1e3-default-rtdb.firebaseio.com"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // Database References
+  const voteARef = ref(db, "votes/Karachi_Shahbaz");
+  const voteBRef = ref(db, "votes/Kpk_Zaid");
+
+  // Realtime Listener
+  onValue(voteARef, snap => {
+    document.getElementById("countA").textContent = snap.val() ?? 0;
+  });
+
+  onValue(voteBRef, snap => {
+    document.getElementById("countB").textContent = snap.val() ?? 0;
+  });
+
+  // Vote Buttons with 1 vote per user
+  document.getElementById("voteA").onclick = () => {
+    if (localStorage.getItem("voted")) {
+      alert("You already voted!");
+      return;
+    }
+    runTransaction(voteARef, count => (count || 0) + 1);
+    localStorage.setItem("voted", "true");
+    alert("Vote submitted!");
+  };
+
+  document.getElementById("voteB").onclick = () => {
+    if (localStorage.getItem("voted")) {
+      alert("You already voted!");
+      return;
+    }
+    runTransaction(voteBRef, count => (count || 0) + 1);
+    localStorage.setItem("voted", "true");
+    alert("Vote submitted!");
+  };
+
+</script>
+
+</body>
+</html>
